@@ -1,0 +1,6 @@
+<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Food</th><th>Organization</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+{% for r in requests_list %}<tr><td>{{ r.food_name }}</td><td>{{ r.ngo_name if r.ngo_name is defined else 'My organization' }}</td><td>{{ r.status }}</td><td class="d-flex flex-wrap gap-1">
+{% if role == 'Donor' or role == 'Admin' %}{% if r.status == 'Pending' %}<form method="post" action="{{ url_for('update_request', request_id=r.id, action='approve') }}"><button class="btn btn-sm btn-success">Approve</button></form><form method="post" action="{{ url_for('update_request', request_id=r.id, action='reject') }}"><button class="btn btn-sm btn-outline-danger">Reject</button></form>{% endif %}{% endif %}
+{% if role == 'Volunteer' or role == 'Admin' %}{% if r.status == 'Approved' %}<form method="post" action="{{ url_for('update_request', request_id=r.id, action='pickup') }}"><button class="btn btn-sm btn-outline-primary">Mark picked up</button></form>{% endif %}{% if r.status == 'Approved' %}<form method="post" action="{{ url_for('update_request', request_id=r.id, action='deliver') }}"><button class="btn btn-sm btn-success">Mark delivered</button></form>{% endif %}{% endif %}
+</td></tr>{% else %}<tr><td colspan="4" class="text-muted">No requests yet.</td></tr>{% endfor %}
+</tbody></table></div>

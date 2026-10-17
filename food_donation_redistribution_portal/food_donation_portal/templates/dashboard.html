@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}Dashboard{% endblock %}
+{% block content %}<span class="eyebrow">YOUR SHAREPLATE SPACE</span><h1 class="display-6 fw-bold mt-2">{{ role }} dashboard</h1><p class="text-muted">Manage donations and keep every handoff traceable.</p>
+{% if role == 'Donor' %}<a class="btn btn-success mb-4" href="{{ url_for('new_donation') }}">+ Add food donation</a>{% endif %}
+{% if role == 'Admin' %}
+<h2 class="h4 mt-4">Donations</h2><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Food</th><th>Donor</th><th>Quantity</th><th>Deadline</th><th>Status</th></tr></thead><tbody>{% for d in donations %}<tr><td>{{ d.food_name }}</td><td>{{ d.donor_name }}</td><td>{{ d.quantity }} {{ d.unit }}</td><td>{{ d.safe_until.strftime('%d %b %H:%M') }}</td><td>{{ d.status }}</td></tr>{% else %}<tr><td colspan="5">No donations yet.</td></tr>{% endfor %}</tbody></table></div>
+<h2 class="h4 mt-4">User verification</h2><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Verified</th><th>Action</th></tr></thead><tbody>{% for u in users %}<tr><td>{{ u.name }}</td><td>{{ u.email }}</td><td>{{ u.role }}</td><td>{{ 'Yes' if u.verified else 'Pending' }}</td><td>{% if u.role in ['NGO','Volunteer'] and not u.verified %}<form method="post" action="{{ url_for('verify_user', user_id=u.id) }}"><button class="btn btn-sm btn-outline-success">Verify</button></form>{% else %}—{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+<h2 class="h4 mt-4">Donation requests</h2>{% include "requests_table.html" %}
+{% else %}
+<h2 class="h4 mt-4">{% if role == 'NGO' %}Available food{% elif role == 'Volunteer' %}Deliveries needing action{% else %}My donations{% endif %}</h2>
+<div class="row g-3">{% for d in donations %}<div class="col-md-6 col-lg-4"><div class="food-card p-3 h-100"><span class="badge text-bg-success-subtle">{{ d.status if role == 'Donor' else d.category }}</span><h5 class="mt-2">{{ d.food_name }}</h5><p class="text-muted mb-1">{{ d.quantity }} {{ d.unit }} · {{ d.location }}</p><p class="small text-danger">Safe until {{ d.safe_until.strftime('%d %b, %I:%M %p') }}</p>{% if role == 'NGO' %}<form method="post" action="{{ url_for('request_donation', donation_id=d.id) }}"><button class="btn btn-success btn-sm">Request this food</button></form>{% endif %}</div></div>{% else %}<div class="col-12"><div class="empty-state">Nothing to show here yet.</div></div>{% endfor %}</div>
+<h2 class="h4 mt-5">{% if role == 'Donor' %}Requests for my donations{% elif role == 'NGO' %}My requests{% else %}Assigned deliveries{% endif %}</h2>{% include "requests_table.html" %}
+{% endif %}
+{% endblock %}

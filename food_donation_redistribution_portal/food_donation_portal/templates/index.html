@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero rounded-4 p-4 p-md-5 mb-4">
+  <div class="row align-items-center g-4"><div class="col-lg-7">
+    <span class="eyebrow">GOOD FOOD. BETTER FUTURE.</span>
+    <h1 class="display-5 fw-bold mt-3">Share food.<br>Spread hope.</h1>
+    <p class="lead mt-3">Connect surplus food with communities that need it. Donate responsibly, coordinate pickups, and make every meal count.</p>
+    <div class="d-flex flex-wrap gap-2 mt-4"><a class="btn btn-success btn-lg" href="{{ url_for('donations') }}">Find food donations</a>
+    {% if session.get('role') == 'Donor' %}<a class="btn btn-outline-dark btn-lg" href="{{ url_for('new_donation') }}">Donate food</a>{% elif not session.get('user_id') %}<a class="btn btn-outline-dark btn-lg" href="{{ url_for('register') }}">Join the community</a>{% endif %}</div>
+  </div><div class="col-lg-5"><div class="hero-art"><div class="plate">🥗</div><div class="floating f1">♻️ Less waste</div><div class="floating f2">💚 More care</div></div></div></div>
+</section>
+<div class="row g-3 mb-5">
+  <div class="col-md-4"><div class="stat-card"><span>Available donations</span><strong>{{ stats.available }}</strong><small>Ready to be requested</small></div></div>
+  <div class="col-md-4"><div class="stat-card"><span>Completed deliveries</span><strong>{{ stats.completed }}</strong><small>Recorded in the portal</small></div></div>
+  <div class="col-md-4"><div class="stat-card"><span>Quantity redistributed</span><strong>{{ "%.1f"|format(stats.donated) }}</strong><small>Mixed units; demo metric</small></div></div>
+</div>
+<div class="d-flex align-items-end justify-content-between mb-3"><div><span class="eyebrow">FRESH OPPORTUNITIES</span><h2 class="fw-bold mt-1">Recently listed food</h2></div><a href="{{ url_for('donations') }}" class="text-success fw-semibold">View all →</a></div>
+<div class="row g-3">
+{% for d in donations %}<div class="col-md-6 col-lg-4"><div class="food-card h-100"><div class="food-icon">{{ '🥘' if d.category == 'Cooked meal' else '🥬' if d.category == 'Produce' else '🥖' if d.category == 'Bakery' else '📦' }}</div><div class="p-3"><span class="badge text-bg-success-subtle">{{ d.category }}</span><h5 class="mt-2">{{ d.food_name }}</h5><p class="text-muted mb-1">Quantity: {{ d.quantity }} {{ d.unit }}</p><p class="text-muted mb-1">📍 {{ d.location }}</p><p class="small text-danger mb-0">Safe until: {{ d.safe_until.strftime('%d %b, %I:%M %p') }}</p></div></div></div>
+{% else %}<div class="col-12"><div class="empty-state">No active donations yet. Please check back soon.</div></div>{% endfor %}
+</div>
+<div class="safety-note mt-5"><strong>Food safety comes first.</strong> Only share food that has been safely prepared, stored, packed, and transported. Never donate spoiled or contaminated food.</div>
+{% endblock %}
